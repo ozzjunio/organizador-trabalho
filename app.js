@@ -31,6 +31,7 @@
     pedidoLocaisTabelas: document.getElementById("pedido-locais-tabelas"),
     btnSavePedidoCatalogo: document.getElementById("btn-save-pedido-catalogo"),
     historicoFilters: document.getElementById("historico-filters"),
+    resumoMesFiltro: document.getElementById("resumo-mes-filtro"),
     resumoMensal: document.getElementById("resumo-mensal"),
     pedidoList: document.getElementById("pedido-list"),
     btnNewProduto: document.getElementById("btn-new-produto"),
@@ -81,6 +82,7 @@
   ];
   let currentFilter = "TODAS";
   let historicoFilterLocal = "TODAS";
+  let resumoFilterMes = "TODOS";
   let toastTimer = null;
 
   function esc(str) {
@@ -673,12 +675,27 @@
     return Array.from(meses.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }
 
+  els.resumoMesFiltro.addEventListener("change", () => {
+    resumoFilterMes = els.resumoMesFiltro.value;
+    renderPedidos();
+  });
+
   function renderResumoMensal(filtrados) {
     if (filtrados.length === 0) {
+      els.resumoMesFiltro.innerHTML = '<option value="TODOS">Todos os meses</option>';
       els.resumoMensal.innerHTML = '<div class="empty-state">Sem dados ainda.</div>';
       return;
     }
-    const meses = groupResumoMensal(filtrados);
+    const todosMeses = groupResumoMensal(filtrados);
+    if (!todosMeses.some(([mk]) => mk === resumoFilterMes)) resumoFilterMes = "TODOS";
+
+    els.resumoMesFiltro.innerHTML =
+      '<option value="TODOS">Todos os meses</option>' +
+      todosMeses
+        .map(([mk]) => `<option value="${esc(mk)}" ${mk === resumoFilterMes ? "selected" : ""}>${esc(monthLabel(mk))}</option>`)
+        .join("");
+
+    const meses = resumoFilterMes === "TODOS" ? todosMeses : todosMeses.filter(([mk]) => mk === resumoFilterMes);
     els.resumoMensal.innerHTML = meses
       .map(([mk, porProduto]) => {
         const linhas = Array.from(porProduto.entries()).sort((a, b) => b[1] - a[1]);
