@@ -314,6 +314,34 @@ form.item-form .actions {
   gap: 8px;
 }
 
+.task-select-wrap {
+  display: flex;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.task-select-wrap input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+}
+
+.bulk-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.bulk-bar[hidden] { display: none; }
+
 .card-title {
   font-weight: 600;
   margin: 0 0 4px;

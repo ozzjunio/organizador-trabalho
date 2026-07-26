@@ -22,6 +22,10 @@
     btnCancelTarefasBulk: document.getElementById("btn-cancel-tarefas-bulk"),
     btnImportTarefasBulk: document.getElementById("btn-import-tarefas-bulk"),
     tarefasBulkPaste: document.getElementById("tarefas-bulk-paste"),
+    taskBulkBar: document.getElementById("task-bulk-bar"),
+    taskBulkCount: document.getElementById("task-bulk-count"),
+    btnClearTaskSelection: document.getElementById("btn-clear-task-selection"),
+    btnDeleteSelectedTasks: document.getElementById("btn-delete-selected-tasks"),
     btnNewNote: document.getElementById("btn-new-note"),
     formNote: document.getElementById("form-note"),
     btnCancelNote: document.getElementById("btn-cancel-note"),
@@ -54,6 +58,7 @@
   };
 
   let tasks = [];
+  let selectedTaskIds = new Set();
   let notes = [];
   let pedidos = [];
   let produtos = [];
@@ -344,8 +349,15 @@
     currentFilter = btn.dataset.filter;
     els.taskFilters.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
+    selectedTaskIds.clear();
     renderTasks();
   });
+
+  function updateTaskBulkBar() {
+    const n = selectedTaskIds.size;
+    els.taskBulkBar.hidden = n === 0;
+    els.taskBulkCount.textContent = n === 1 ? "1 tarefa selecionada" : `${n} tarefas selecionadas`;
+  }
 
   function statusLabel(s) {
     return { A_FAZER: "A Fazer", FAZENDO: "Fazendo", FEITO: "Feito" }[s] || s;
@@ -356,15 +368,22 @@
   }
 
   function renderTasks() {
+    for (const id of Array.from(selectedTaskIds)) {
+      if (!tasks.some((t) => t.ID === id)) selectedTaskIds.delete(id);
+    }
     const filtered = currentFilter === "TODAS" ? tasks : tasks.filter((t) => t.Status === currentFilter);
     if (filtered.length === 0) {
       els.taskList.innerHTML = '<div class="empty-state">Nenhuma tarefa por aqui ainda.</div>';
+      updateTaskBulkBar();
       return;
     }
     els.taskList.innerHTML = filtered
       .map((t) => `
         <div class="card" data-id="${esc(t.ID)}">
           <div class="card-top">
+            <label class="task-select-wrap">
+              <input type="checkbox" class="task-select" data-id="${esc(t.ID)}" ${selectedTaskIds.has(t.ID) ? "checked" : ""}>
+            </label>
             <p class="card-title">${esc(t.Titulo)}</p>
           </div>
           ${t.Descricao ? `<p class="card-desc">${esc(t.Descricao)}</p>` : ""}
@@ -383,7 +402,36 @@
         </div>
       `)
       .join("");
+    updateTaskBulkBar();
   }
+
+  els.taskList.addEventListener("change", (e) => {
+    const cb = e.target.closest(".task-select");
+    if (!cb) return;
+    if (cb.checked) selectedTaskIds.add(cb.dataset.id);
+    else selectedTaskIds.delete(cb.dataset.id);
+    updateTaskBulkBar();
+  });
+
+  els.btnClearTaskSelection.addEventListener("click", () => {
+    selectedTaskIds.clear();
+    renderTasks();
+  });
+
+  els.btnDeleteSelectedTasks.addEventListener("click", async () => {
+    const ids = Array.from(selectedTaskIds);
+    if (ids.length === 0) return;
+    if (!confirm(`Excluir ${ids.length} tarefa(s) selecionada(s)?`)) return;
+    await withSync(async () => {
+      for (const id of ids) {
+        await GoogleSync.deleteRow(GoogleSync.TASKS_SHEET, id);
+      }
+      tasks = tasks.filter((t) => !selectedTaskIds.has(t.ID));
+      selectedTaskIds.clear();
+      renderTasks();
+      showToast(`${ids.length} tarefa(s) excluída(s).`);
+    });
+  });
 
   els.taskList.addEventListener("click", async (e) => {
     const card = e.target.closest(".card");
