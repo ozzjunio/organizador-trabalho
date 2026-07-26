@@ -21,6 +21,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 header {
@@ -95,10 +96,16 @@ nav.tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
+nav.tabs::-webkit-scrollbar { display: none; }
+
 nav.tabs button {
-  flex: 1;
+  flex: 0 0 auto;
+  white-space: nowrap;
   background: var(--surface);
   color: var(--text-muted);
   border: 1px solid var(--border);
