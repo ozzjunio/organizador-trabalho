@@ -39,8 +39,21 @@
         <button data-filter="FAZENDO">Fazendo</button>
         <button data-filter="FEITO">Feito</button>
       </div>
-      <button id="btn-new-task">+ Nova tarefa</button>
+      <div style="display:flex;gap:8px">
+        <button id="btn-bulk-tarefas" class="secondary">Importar várias</button>
+        <button id="btn-new-task">+ Nova tarefa</button>
+      </div>
     </div>
+
+    <form id="form-tarefas-bulk" class="item-form">
+      <div class="paste-box">
+        <textarea id="tarefas-bulk-paste" placeholder="Cole várias tarefas de uma vez: cada tarefa em um bloco (Título / Descrição / Prioridade / Prazo), separado por uma linha em branco da próxima tarefa."></textarea>
+      </div>
+      <div class="actions">
+        <button type="button" id="btn-cancel-tarefas-bulk" class="secondary">Cancelar</button>
+        <button type="button" id="btn-import-tarefas-bulk">Importar tarefas</button>
+      </div>
+    </form>
 
     <form id="form-task" class="item-form">
       <input type="hidden" id="task-id">

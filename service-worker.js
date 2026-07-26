@@ -1,4 +1,4 @@
-const CACHE_NAME = "gestbar-v2";
+const CACHE_NAME = "gestbar-v3";
 const APP_SHELL = [
   "./",
   "./index.html",

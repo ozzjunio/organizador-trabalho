@@ -17,6 +17,11 @@
     btnCancelTask: document.getElementById("btn-cancel-task"),
     taskPaste: document.getElementById("task-paste"),
     btnParseTask: document.getElementById("btn-parse-task"),
+    btnBulkTarefas: document.getElementById("btn-bulk-tarefas"),
+    formTarefasBulk: document.getElementById("form-tarefas-bulk"),
+    btnCancelTarefasBulk: document.getElementById("btn-cancel-tarefas-bulk"),
+    btnImportTarefasBulk: document.getElementById("btn-import-tarefas-bulk"),
+    tarefasBulkPaste: document.getElementById("tarefas-bulk-paste"),
     btnNewNote: document.getElementById("btn-new-note"),
     formNote: document.getElementById("form-note"),
     btnCancelNote: document.getElementById("btn-cancel-note"),
@@ -172,6 +177,11 @@
     if (f.prioridade) result.Prioridade = mapPriority(f.prioridade);
     if (f.prazo) result.Prazo = mapDate(f.prazo);
     return result;
+  }
+
+  function parseTarefasBulkText(text) {
+    const blocks = text.split(/\r?\n\s*\r?\n+/).map((b) => b.trim()).filter(Boolean);
+    return blocks.map((block) => parsePastedTask(block)).filter((t) => t.Titulo);
   }
 
   function parsePastedNote(text) {
@@ -404,7 +414,53 @@
     }
   });
 
+  function openTarefasBulkForm() {
+    closeTaskForm();
+    els.formTarefasBulk.classList.add("open");
+    els.tarefasBulkPaste.value = "";
+  }
+
+  function closeTarefasBulkForm() {
+    els.formTarefasBulk.classList.remove("open");
+    els.formTarefasBulk.reset();
+  }
+
+  els.btnBulkTarefas.addEventListener("click", openTarefasBulkForm);
+  els.btnCancelTarefasBulk.addEventListener("click", closeTarefasBulkForm);
+
+  els.btnImportTarefasBulk.addEventListener("click", async () => {
+    const text = els.tarefasBulkPaste.value;
+    const items = parseTarefasBulkText(text);
+    if (items.length === 0) {
+      showToast("Não consegui identificar tarefas nesse texto. Confira o formato e tente de novo.", true);
+      return;
+    }
+
+    await withSync(async () => {
+      const novas = [];
+      for (const item of items) {
+        const row = {
+          ID: GoogleSync.genId(),
+          Titulo: item.Titulo,
+          Descricao: item.Descricao || "",
+          Status: item.Status || "A_FAZER",
+          Prioridade: item.Prioridade || "MEDIA",
+          Prazo: item.Prazo || "",
+          CriadoEm: nowIso(),
+          AtualizadoEm: nowIso()
+        };
+        await GoogleSync.appendRow(GoogleSync.TASKS_SHEET, row);
+        novas.push(row);
+      }
+      tasks.push(...novas);
+      renderTasks();
+      closeTarefasBulkForm();
+      showToast(`${novas.length} tarefa(s) importada(s).`);
+    });
+  });
+
   function openTaskForm(task) {
+    closeTarefasBulkForm();
     els.formTask.classList.add("open");
     els.taskPaste.value = "";
     document.getElementById("task-id").value = task ? task.ID : "";
