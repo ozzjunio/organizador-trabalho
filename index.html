@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Organizador de Trabalho</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0f172a">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Organizador de Trabalho</h1>
+  <div id="auth-area">
+    <span id="auth-status">Verificando login...</span>
+    <button id="btn-login" class="secondary" hidden>Entrar com Google</button>
+    <button id="btn-logout" class="secondary" hidden>Sair</button>
+  </div>
+</header>
+
+<main>
+  <div id="sync-status"></div>
+
+  <nav class="tabs">
+    <button id="tab-tarefas" class="active" data-view="tarefas">Tarefas</button>
+    <button id="tab-notas" data-view="notas">Notas</button>
+    <button id="tab-pedidos" data-view="pedidos">Pedidos</button>
+    <button id="tab-historico" data-view="historico">Histórico de Pedidos</button>
+    <button id="tab-produtos" data-view="produtos">Produtos</button>
+  </nav>
+
+  <section id="view-tarefas" class="view active">
+    <div class="view-header">
+      <div class="filters" id="task-filters">
+        <button data-filter="TODAS" class="active">Todas</button>
+        <button data-filter="A_FAZER">A Fazer</button>
+        <button data-filter="FAZENDO">Fazendo</button>
+        <button data-filter="FEITO">Feito</button>
+      </div>
+      <button id="btn-new-task">+ Nova tarefa</button>
+    </div>
+
+    <form id="form-task" class="item-form">
+      <input type="hidden" id="task-id">
+      <div class="paste-box">
+        <textarea id="task-paste" placeholder="Cole aqui o texto (Título / Descrição / Prioridade / Prazo) e clique em Preencher"></textarea>
+        <button type="button" id="btn-parse-task" class="secondary">Preencher com o texto colado</button>
+      </div>
+      <input type="text" id="task-titulo" placeholder="Título da tarefa" required maxlength="200">
+      <textarea id="task-descricao" placeholder="Descrição (opcional)"></textarea>
+      <div class="row">
+        <select id="task-status">
+          <option value="A_FAZER">A Fazer</option>
+          <option value="FAZENDO">Fazendo</option>
+          <option value="FEITO">Feito</option>
+        </select>
+        <select id="task-prioridade">
+          <option value="MEDIA">Prioridade média</option>
+          <option value="ALTA">Prioridade alta</option>
+          <option value="BAIXA">Prioridade baixa</option>
+        </select>
+      </div>
+      <input type="date" id="task-prazo">
+      <div class="actions">
+        <button type="button" id="btn-cancel-task" class="secondary">Cancelar</button>
+        <button type="submit" id="btn-save-task">Salvar tarefa</button>
+      </div>
+    </form>
+
+    <div id="task-list" class="list"></div>
+  </section>
+
+  <section id="view-notas" class="view">
+    <div class="view-header">
+      <span></span>
+      <button id="btn-new-note">+ Nova nota</button>
+    </div>
+
+    <form id="form-note" class="item-form">
+      <input type="hidden" id="note-id">
+      <div class="paste-box">
+        <textarea id="note-paste" placeholder="Cole aqui o texto (Título / Conteúdo / Tags) e clique em Preencher"></textarea>
+        <button type="button" id="btn-parse-note" class="secondary">Preencher com o texto colado</button>
+      </div>
+      <input type="text" id="note-titulo" placeholder="Título da nota" required maxlength="200">
+      <textarea id="note-conteudo" placeholder="Conteúdo"></textarea>
+      <input type="text" id="note-tags" placeholder="Tags (separadas por vírgula)">
+      <div class="actions">
+        <button type="button" id="btn-cancel-note" class="secondary">Cancelar</button>
+        <button type="submit" id="btn-save-note">Salvar nota</button>
+      </div>
+    </form>
+
+    <div id="note-list" class="list"></div>
+  </section>
+
+  <section id="view-pedidos" class="view">
+    <div class="view-header">
+      <span></span>
+      <button id="btn-new-pedido">+ Novo pedido</button>
+    </div>
+
+    <form id="form-pedido" class="item-form">
+      <label for="pedido-data" style="font-size:0.85rem;color:var(--text-muted)">Data do pedido</label>
+      <input type="date" id="pedido-data">
+
+      <details class="paste-box">
+        <summary style="cursor:pointer;font-size:0.8rem;color:var(--text-muted)">Colar texto do WhatsApp (opcional, pode ter vários locais)</summary>
+        <textarea id="pedido-paste" placeholder="Cole aqui o pedido copiado do WhatsApp (locais, categorias e produtos com quantidade)"></textarea>
+        <button type="button" id="btn-import-pedido">Importar pedido colado</button>
+      </details>
+
+      <div id="pedido-locais-tabelas"></div>
+
+      <div class="actions">
+        <button type="button" id="btn-cancel-pedido" class="secondary">Cancelar</button>
+        <button type="button" id="btn-save-pedido-catalogo">Salvar pedido</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="view-historico" class="view">
+    <div class="view-header">
+      <div class="filters" id="historico-filters"></div>
+      <span></span>
+    </div>
+
+    <details class="paste-box" style="margin-bottom:16px">
+      <summary style="cursor:pointer;font-size:0.85rem;color:var(--text-muted)">Resumo mensal por produto</summary>
+      <div id="resumo-mensal" class="list" style="margin-top:10px"></div>
+    </details>
+
+    <div id="pedido-list" class="list"></div>
+  </section>
+
+  <section id="view-produtos" class="view">
+    <div class="view-header">
+      <span></span>
+      <div style="display:flex;gap:8px">
+        <button id="btn-bulk-produtos" class="secondary">Importar vários</button>
+        <button id="btn-new-produto">+ Novo produto</button>
+      </div>
+    </div>
+
+    <form id="form-produtos-bulk" class="item-form">
+      <div class="paste-box">
+        <textarea id="produtos-bulk-paste" placeholder="Cole a lista: uma linha com a categoria, linha em branco, os produtos dessa categoria (um por linha), linha em branco, próxima categoria..."></textarea>
+      </div>
+      <div class="actions">
+        <button type="button" id="btn-cancel-produtos-bulk" class="secondary">Cancelar</button>
+        <button type="button" id="btn-import-produtos-bulk">Importar produtos</button>
+      </div>
+    </form>
+
+    <form id="form-produto" class="item-form">
+      <input type="hidden" id="produto-id">
+      <div class="paste-box">
+        <textarea id="produto-paste" placeholder="Cole aqui o texto (Nome / Categoria) e clique em Preencher"></textarea>
+        <button type="button" id="btn-parse-produto" class="secondary">Preencher com o texto colado</button>
+      </div>
+      <input type="text" id="produto-nome" placeholder="Nome do produto" required maxlength="200">
+      <input type="text" id="produto-categoria" placeholder="Categoria (ex: Chopp, Cerveja, Agua)">
+      <div class="actions">
+        <button type="button" id="btn-cancel-produto" class="secondary">Cancelar</button>
+        <button type="submit" id="btn-save-produto">Salvar produto</button>
+      </div>
+    </form>
+
+    <div id="produto-list" class="list"></div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script src="config.js"></script>
+<script src="google-sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
