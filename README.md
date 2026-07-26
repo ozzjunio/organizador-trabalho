@@ -1,8 +1,9 @@
-# Organizador de Trabalho
+# GestBar
 
-PWA (site instalável) para organizar tarefas e notas de trabalho, sincronizado
-com uma planilha do Google Sheets no seu próprio Google Drive. Sem backend
-próprio — só arquivos estáticos + APIs do Google direto do navegador.
+PWA (site instalável) para organizar tarefas, notas e pedidos de bar,
+sincronizado com uma planilha do Google Sheets no seu próprio Google Drive.
+Sem backend próprio — só arquivos estáticos + APIs do Google direto do
+navegador.
 
 ## Como rodar
 

@@ -1,7 +1,7 @@
 {
-  "name": "Organizador de Trabalho",
-  "short_name": "Organizador",
-  "description": "Tarefas e notas de trabalho, sincronizadas com o Google Sheets.",
+  "name": "GestBar",
+  "short_name": "GestBar",
+  "description": "Tarefas, notas e pedidos de bar organizados e sincronizados com o Google Sheets.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

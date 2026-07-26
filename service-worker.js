@@ -1,4 +1,4 @@
-const CACHE_NAME = "organizador-trabalho-v14";
+const CACHE_NAME = "gestbar-v1";
 const APP_SHELL = [
   "./",
   "./index.html",

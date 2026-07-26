@@ -10,7 +10,7 @@ Leva uns 5-10 minutos. Depois disso você não precisa mexer nisso de novo.
 ## 1. Criar um projeto no Google Cloud
 
 1. Acesse https://console.cloud.google.com/projectcreate
-2. Dê um nome (ex: "Organizador de Trabalho") e clique em **Criar**.
+2. Dê um nome (ex: "GestBar") e clique em **Criar**.
 3. Espere a notificação de "projeto criado" e selecione esse projeto no topo da página.
 
 ## 2. Ativar as APIs necessárias
