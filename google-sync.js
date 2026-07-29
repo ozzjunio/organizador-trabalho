@@ -8,7 +8,7 @@ const GoogleSync = (() => {
   const LOCAIS_SHEET = "Locais";
   const TASKS_HEADER = ["ID", "Titulo", "Descricao", "Status", "Prioridade", "Prazo", "CriadoEm", "AtualizadoEm"];
   const NOTES_HEADER = ["ID", "Titulo", "Conteudo", "Tags", "CriadoEm", "AtualizadoEm"];
-  const PEDIDOS_HEADER = ["ID", "Data", "Local", "Categoria", "Produto", "Quantidade", "CriadoEm"];
+  const PEDIDOS_HEADER = ["ID", "Data", "Local", "Categoria", "Produto", "Quantidade", "CriadoEm", "Faltou"];
   const PRODUTOS_HEADER = ["ID", "Nome", "Categoria", "CriadoEm"];
   const LOCAIS_HEADER = ["ID", "Nome", "CriadoEm"];
   const TOKEN_STORAGE_KEY = "organizador_gtoken";
@@ -218,6 +218,19 @@ const GoogleSync = (() => {
     );
   }
 
+  async function ensureHeaderUpToDate(sheetName) {
+    const expected = headerFor(sheetName);
+    const range = encodeURIComponent(`${sheetName}!1:1`);
+    const data = await apiFetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`);
+    const current = (data.values && data.values[0]) || [];
+    const missing = expected.filter((h) => !current.includes(h));
+    if (missing.length === 0) return;
+    await apiFetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=RAW`,
+      { method: "PUT", body: JSON.stringify({ values: [[...current, ...missing]] }) }
+    );
+  }
+
   async function ensureSpreadsheet() {
     if (!spreadsheetId) {
       const found = await findSpreadsheetId();
@@ -231,6 +244,7 @@ const GoogleSync = (() => {
     await ensureSheetExists(PEDIDOS_SHEET);
     await ensureSheetExists(PRODUTOS_SHEET);
     await ensureSheetExists(LOCAIS_SHEET);
+    await ensureHeaderUpToDate(PEDIDOS_SHEET);
     return spreadsheetId;
   }
 
