@@ -7,7 +7,9 @@ reexplicar o projeto do zero toda vez.
 ## O que é o GestBar
 
 PWA (site instalável) do Ozz para organizar tarefas, notas e pedidos de bar.
-Roda em `https://ozzjunio.github.io/organizador-trabalho/` (produção) ou
+Roda em `https://ozzjunio.github.io/organizador-trabalho/` (GitHub Pages) e
+também em `https://organizador-trabalho.ozzjunio.workers.dev` (Cloudflare
+Workers, deploy automático a cada push na `main` via `wrangler.jsonc`) — ou
 localmente via `serve.ps1` (veja [README.md](README.md)). Os dados ficam numa
 planilha do Google Sheets ("OrganizadorTrabalho-DB") no Drive do usuário —
 não há backend próprio.
