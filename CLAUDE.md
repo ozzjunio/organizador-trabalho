@@ -7,10 +7,12 @@ reexplicar o projeto do zero toda vez.
 ## O que é o GestBar
 
 PWA (site instalável) do Ozz para organizar tarefas, notas e pedidos de bar.
-Roda em `https://ozzjunio.github.io/organizador-trabalho/` (GitHub Pages) e
-também em `https://organizador-trabalho.ozzjunio.workers.dev` (Cloudflare
+Roda em `https://organizador-trabalho.ozzjunio.workers.dev` (Cloudflare
 Workers, deploy automático a cada push na `main` via `wrangler.jsonc`) — ou
-localmente via `serve.ps1` (veja [README.md](README.md)). Os dados ficam numa
+localmente via `serve.ps1` (veja [README.md](README.md)). O GitHub Pages
+(`ozzjunio.github.io/organizador-trabalho`) foi desativado em 29/07/2026;
+o repositório continua sendo usado só como origem do deploy do Cloudflare.
+Os dados ficam numa
 planilha do Google Sheets ("OrganizadorTrabalho-DB") no Drive do usuário —
 não há backend próprio.
 
@@ -92,5 +94,5 @@ automação de browser estiver disponível e conectada à sessão logada dele.
   `google-sync.js`, é preciso subir a versão do `CACHE_NAME` em
   [service-worker.js](service-worker.js), senão o navegador (principalmente
   no celular) continua servindo a versão antiga em cache.
-- Deploy é via GitHub Pages: depois de editar, `git add`, `git commit`,
+- Deploy é via Cloudflare Workers: depois de editar, `git add`, `git commit`,
   `git push origin main` — o site atualiza sozinho em 1-2 minutos.
