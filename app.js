@@ -769,7 +769,7 @@
   function groupResumoMensal(list) {
     const meses = new Map();
     for (const p of list) {
-      if (!p.Data) continue;
+      if (!p.Data || p.Faltou === "SIM") continue;
       const mk = p.Data.slice(0, 7);
       if (!meses.has(mk)) meses.set(mk, new Map());
       const porProduto = meses.get(mk);
