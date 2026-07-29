@@ -842,8 +842,20 @@
               .map(
                 ([cat, items]) => `
                   <p style="margin:8px 0 2px;font-weight:600;color:var(--accent);font-size:0.85rem">${esc(cat || "Sem categoria")}</p>
-                  <ul style="margin:0 0 4px;padding-left:18px;color:var(--text-muted);font-size:0.9rem">
-                    ${items.map((it) => `<li>${esc(it.Quantidade)}x ${esc(it.Produto)}</li>`).join("")}
+                  <ul class="pedido-item-list">
+                    ${items
+                      .map(
+                        (it) => `
+                          <li class="pedido-item${it.Faltou === "SIM" ? " faltou" : ""}">
+                            <label class="pedido-item-label">
+                              <input type="checkbox" class="pedido-faltou-check" data-id="${esc(it.ID)}" ${it.Faltou === "SIM" ? "checked" : ""}>
+                              <span>${esc(it.Quantidade)}x ${esc(it.Produto)}</span>
+                            </label>
+                            ${it.Faltou === "SIM" ? '<span class="badge faltou">faltou</span>' : ""}
+                          </li>
+                        `
+                      )
+                      .join("")}
                   </ul>
                 `
               )
@@ -856,6 +868,20 @@
       })
       .join("");
   }
+
+  els.pedidoList.addEventListener("change", async (e) => {
+    const checkbox = e.target.closest(".pedido-faltou-check");
+    if (!checkbox) return;
+    const id = checkbox.dataset.id;
+    const item = pedidos.find((p) => p.ID === id);
+    if (!item) return;
+    const faltou = checkbox.checked;
+    await withSync(async () => {
+      await GoogleSync.updateRow(GoogleSync.PEDIDOS_SHEET, id, { Faltou: faltou ? "SIM" : "" });
+      item.Faltou = faltou ? "SIM" : "";
+      renderPedidos();
+    });
+  });
 
   els.pedidoList.addEventListener("click", async (e) => {
     const card = e.target.closest(".card");
