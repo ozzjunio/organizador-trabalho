@@ -40,7 +40,8 @@
     pedidoLocaisTabelas: document.getElementById("pedido-locais-tabelas"),
     btnSavePedidoCatalogo: document.getElementById("btn-save-pedido-catalogo"),
     historicoFilters: document.getElementById("historico-filters"),
-    resumoMesFiltro: document.getElementById("resumo-mes-filtro"),
+    resumoDataInicio: document.getElementById("resumo-data-inicio"),
+    resumoDataFim: document.getElementById("resumo-data-fim"),
     resumoMensal: document.getElementById("resumo-mensal"),
     pedidoList: document.getElementById("pedido-list"),
     btnNewProduto: document.getElementById("btn-new-produto"),
@@ -92,7 +93,8 @@
   ];
   let currentFilter = "TODAS";
   let historicoFilterLocal = "TODAS";
-  let resumoFilterMes = "TODOS";
+  let resumoFilterInicio = "";
+  let resumoFilterFim = "";
   let toastTimer = null;
 
   function esc(str) {
@@ -760,59 +762,56 @@
     renderPedidos();
   });
 
-  function monthLabel(monthKey) {
-    const [y, m] = monthKey.split("-").map(Number);
-    const label = new Date(y, m - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  }
-
-  function groupResumoMensal(list) {
-    const meses = new Map();
+  function sumProdutosPeriodo(list, inicio, fim) {
+    const porProduto = new Map();
     for (const p of list) {
       if (!p.Data || p.Faltou === "SIM") continue;
-      const mk = p.Data.slice(0, 7);
-      if (!meses.has(mk)) meses.set(mk, new Map());
-      const porProduto = meses.get(mk);
+      if (inicio && p.Data < inicio) continue;
+      if (fim && p.Data > fim) continue;
       const qtd = Number(p.Quantidade) || 0;
       porProduto.set(p.Produto, (porProduto.get(p.Produto) || 0) + qtd);
     }
-    return Array.from(meses.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+    return Array.from(porProduto.entries()).sort((a, b) => b[1] - a[1]);
   }
 
-  els.resumoMesFiltro.addEventListener("change", () => {
-    resumoFilterMes = els.resumoMesFiltro.value;
+  els.resumoDataInicio.addEventListener("change", () => {
+    resumoFilterInicio = els.resumoDataInicio.value;
+    renderPedidos();
+  });
+
+  els.resumoDataFim.addEventListener("change", () => {
+    resumoFilterFim = els.resumoDataFim.value;
     renderPedidos();
   });
 
   function renderResumoMensal(filtrados) {
+    els.resumoDataInicio.value = resumoFilterInicio;
+    els.resumoDataFim.value = resumoFilterFim;
+
     if (filtrados.length === 0) {
-      els.resumoMesFiltro.innerHTML = '<option value="TODOS">Todos os meses</option>';
       els.resumoMensal.innerHTML = '<div class="empty-state">Sem dados ainda.</div>';
       return;
     }
-    const todosMeses = groupResumoMensal(filtrados);
-    if (!todosMeses.some(([mk]) => mk === resumoFilterMes)) resumoFilterMes = "TODOS";
 
-    els.resumoMesFiltro.innerHTML =
-      '<option value="TODOS">Todos os meses</option>' +
-      todosMeses
-        .map(([mk]) => `<option value="${esc(mk)}" ${mk === resumoFilterMes ? "selected" : ""}>${esc(monthLabel(mk))}</option>`)
-        .join("");
+    const linhas = sumProdutosPeriodo(filtrados, resumoFilterInicio, resumoFilterFim);
+    if (linhas.length === 0) {
+      els.resumoMensal.innerHTML = '<div class="empty-state">Nenhum pedido nesse período.</div>';
+      return;
+    }
 
-    const meses = resumoFilterMes === "TODOS" ? todosMeses : todosMeses.filter(([mk]) => mk === resumoFilterMes);
-    els.resumoMensal.innerHTML = meses
-      .map(([mk, porProduto]) => {
-        const linhas = Array.from(porProduto.entries()).sort((a, b) => b[1] - a[1]);
-        return `
-          <div class="card">
-            <p class="card-title">${esc(monthLabel(mk))}</p>
-            <ul style="margin:0;padding-left:18px;color:var(--text-muted);font-size:0.9rem">
-              ${linhas.map(([produto, qtd]) => `<li>${esc(String(qtd))}x ${esc(produto)}</li>`).join("")}
-            </ul>
-          </div>
-        `;
-      })
-      .join("");
+    const periodoLabel =
+      resumoFilterInicio || resumoFilterFim
+        ? `${resumoFilterInicio ? formatDateBR(resumoFilterInicio) : "início"} até ${resumoFilterFim ? formatDateBR(resumoFilterFim) : "hoje"}`
+        : "Todo o período";
+
+    els.resumoMensal.innerHTML = `
+      <div class="card">
+        <p class="card-title">${esc(periodoLabel)}</p>
+        <ul style="margin:0;padding-left:18px;color:var(--text-muted);font-size:0.9rem">
+          ${linhas.map(([produto, qtd]) => `<li>${esc(String(qtd))}x ${esc(produto)}</li>`).join("")}
+        </ul>
+      </div>
+    `;
   }
 
   function renderPedidos() {

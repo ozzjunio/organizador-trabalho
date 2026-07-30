@@ -149,8 +149,11 @@
     </div>
 
     <details class="paste-box" style="margin-bottom:16px" open>
-      <summary style="cursor:pointer;font-size:0.85rem;color:var(--text-muted)">Resumo mensal por produto</summary>
-      <select id="resumo-mes-filtro" style="margin-top:10px;width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit"></select>
+      <summary style="cursor:pointer;font-size:0.85rem;color:var(--text-muted)">Resumo por período</summary>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input type="date" id="resumo-data-inicio" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit" aria-label="De">
+        <input type="date" id="resumo-data-fim" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit" aria-label="Até">
+      </div>
       <div id="resumo-mensal" class="list" style="margin-top:10px"></div>
     </details>
 
