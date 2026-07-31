@@ -86,10 +86,13 @@
     { Nome: "Red Bull", Categoria: "Refrigerantes" },
     { Nome: "Red Bull Tropical", Categoria: "Refrigerantes" },
     { Nome: "Red Bull Suggar Free", Categoria: "Refrigerantes" },
+    { Nome: "Red Bull Melancia", Categoria: "Refrigerantes" },
     { Nome: "Stella", Categoria: "Cervejas" },
     { Nome: "Stella Gold", Categoria: "Cervejas" },
     { Nome: "Corona", Categoria: "Cervejas" },
-    { Nome: "Corona Cero", Categoria: "Cervejas" }
+    { Nome: "Corona Cero", Categoria: "Cervejas" },
+    { Nome: "Água com gás", Categoria: "Água" },
+    { Nome: "Água sem gás", Categoria: "Água" }
   ];
   let currentFilter = "TODAS";
   let historicoFilterLocal = "TODAS";
