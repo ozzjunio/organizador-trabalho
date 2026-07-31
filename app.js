@@ -99,6 +99,10 @@
   let resumoFilterInicio = "";
   let resumoFilterFim = "";
   let toastTimer = null;
+  // Trava única de sincronização: impede clique duplo em salvar/excluir e também
+  // impede que um save rode junto com o carregamento inicial (que reatribui os
+  // arrays de estado e engoliria o item recém-salvo, levando a duplicata).
+  let syncBusy = false;
 
   function esc(str) {
     return String(str ?? "").replace(/[&<>"']/g, (c) => ({
@@ -324,6 +328,11 @@
 
   // ---------- Carregamento ----------
   async function loadAll() {
+    // Segura a mesma trava do withSync: enquanto carrega (e semeia o catálogo
+    // padrão), nenhum salvar/excluir pode rodar em paralelo — senão os arrays
+    // recarregados aqui sobrescreveriam o item recém-salvo.
+    if (syncBusy) return;
+    syncBusy = true;
     setSyncStatus("Sincronizando...");
     try {
       tasks = await GoogleSync.getRows(GoogleSync.TASKS_SHEET);
@@ -344,6 +353,8 @@
         setSyncStatus("Falha ao sincronizar.");
         showToast(e.message, true);
       }
+    } finally {
+      syncBusy = false;
     }
   }
 
@@ -1210,10 +1221,11 @@
   });
 
   // ---------- Util ----------
-  let syncBusy = false;
-
   async function withSync(fn) {
-    if (syncBusy) return;
+    if (syncBusy) {
+      showToast("Aguarde, sincronizando...", true);
+      return;
+    }
     syncBusy = true;
     try {
       setSyncStatus("Sincronizando...");
